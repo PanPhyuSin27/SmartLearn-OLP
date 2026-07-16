@@ -1,0 +1,51 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Classroom Platform{% endblock %}</title>
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+</head>
+<body>
+
+
+
+
+
+     <header class="site-header">
+    <nav class="site-nav">
+       <div class="nav-left">
+            <a href="{% url 'browse_classes' %}" class="site-nav__brand"><span style="color: #000000;">Smart</span><span style="color: #385E32;">Learn</span></a>
+       </div>
+
+        <div class="site-nav__links">
+            <a href="/">Home</a>
+            <a href="/browse/">Explore</a>
+            <a href="/dashboard/">Dashboard</a>
+            <a href="#">Profile</a>
+
+
+        </div>
+
+       <div class="nav-right">
+            <div class="teacher-toggle">
+                <span>Teacher</span>
+                <label class="toggle-switch">
+                    <input type="checkbox" class="toggle-switch__input" checked>
+                    <span class="toggle-switch__slider"></span>
+                </label>
+            </div>
+            <div class="profile-placeholder"></div>
+        </div>
+    </nav>
+</header>
+
+    <main class="main-container">
+        {% block content %}{% endblock %}
+    </main>
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>
