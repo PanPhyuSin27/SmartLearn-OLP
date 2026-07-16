@@ -1,0 +1,436 @@
+/* ================================
+   SMARTLEARN CREATE CLASS PAGE FIX
+   ================================ */
+
+
+/* MAIN AREA */
+.main-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 40px;
+}
+
+
+/* CREATE CLASS WRAPPER */
+.centered-form-wrapper {
+    max-width: 750px;
+    margin: 50px auto;
+}
+
+
+/* BACK BUTTON */
+.back-link {
+    display: inline-block;
+    margin-bottom: 30px;
+    color: #4CAF7D;
+    font-weight: 600;
+    text-decoration: none;
+    font-size: 15px;
+}
+
+.back-link:hover {
+    color: #2b4c3f;
+}
+
+
+/* PAGE TITLE */
+.page-heading-large {
+    font-family: "Raleway", sans-serif;
+    font-size: 38px;
+    font-weight: 800;
+    color: #2b4c3f;
+    margin-bottom: 12px;
+}
+
+
+.subtext-muted {
+    color: #6b756f;
+    font-size: 17px;
+    margin-bottom: 40px;
+}
+
+
+
+/* FORM CARD */
+.styled-card {
+    background: white;
+    border-radius: 22px;
+    padding: 45px;
+    border: 1px solid rgba(228,235,198,0.6);
+    box-shadow: 0 15px 40px rgba(43,76,63,0.08);
+}
+
+
+
+/* LABELS */
+.label-bold {
+    display: block;
+    color: #2b4c3f;
+    font-weight: 700;
+    font-size: 15px;
+
+    margin-top: 25px;
+    margin-bottom: 10px;
+}
+
+
+
+/* INPUT BOX */
+.form-control {
+    width:100%;
+    padding:15px 18px;
+
+    border-radius:14px;
+    border:1px solid #d9dfc5;
+
+    font-size:15px;
+
+    transition:0.3s;
+}
+
+
+.form-control:focus {
+    border-color:#4CAF7D;
+    outline:none;
+    box-shadow:0 0 0 4px rgba(76,175,125,0.15);
+}
+
+
+
+/* SUBJECT AREA */
+select.form-control {
+    height:52px;
+}
+
+
+
+/* DESCRIPTION BOX */
+textarea.form-control {
+    resize:none;
+}
+
+
+
+/* BUTTON AREA */
+.form-actions-row {
+    margin-top:40px;
+
+    display:flex;
+    gap:20px;
+
+    justify-content:flex-end;
+}
+
+
+
+/* PRIMARY BUTTON */
+.btn-primary {
+    background:#4CAF7D;
+    color:white;
+    text-decoration:none;
+    padding:14px 30px;
+
+    border:none;
+    border-radius:12px;
+
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:0.3s;
+}
+
+
+.btn-primary:hover {
+    background:#3f9d70;
+    transform:translateY(-2px);
+}
+
+
+
+/* CANCEL BUTTON */
+.btn-secondary {
+
+    padding:12px 30px;
+
+    border:2px solid #4CAF7D;
+
+    color:#4CAF7D;
+
+    border-radius:12px;
+
+    text-decoration:none;
+
+    font-weight:700;
+
+    transition:0.3s;
+}
+
+
+.btn-secondary:hover {
+
+    background:#4CAF7D;
+
+    color:white;
+
+}
+
+
+
+/* NAVBAR SPACING FIX */
+.site-header {
+    position:sticky;
+    top:0;
+    z-index:1000;
+}
+
+
+.site-nav {
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:space-between;
+
+    padding:18px 40px;
+
+}
+
+
+
+.site-nav__links {
+
+    display:flex;
+
+    gap:35px;
+
+}
+
+
+.site-nav__links a {
+    color: #555c58;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.site-nav__links a:hover {
+    color: #4CAF7D;
+}
+
+.site-nav__brand {
+    text-decoration: none;
+    font-size:30px;
+    color:#4CAF7D;;
+}
+
+/* PROFILE AREA */
+.nav-right {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+
+}
+
+
+
+/* RESPONSIVE */
+@media(max-width:768px){
+
+    .main-container{
+        padding:40px 20px;
+    }
+
+
+    .styled-card{
+        padding:25px;
+    }
+
+
+    .page-heading-large{
+        font-size:30px;
+    }
+
+
+    .form-actions-row{
+        flex-direction:column;
+    }
+
+}
+.back-link {
+    display: inline-block;
+
+    padding: 10px 20px;
+
+    background-color: #ffffff;
+    color: #4CAF7D;
+
+    border: 2px solid #4CAF7D;
+    border-radius: 12px;
+
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 15px;
+
+    transition: 0.3s ease;
+}
+
+
+.back-link:hover {
+    background-color: #4CAF7D;
+    color: white;
+    transform: translateY(-2px);
+}
+
+
+
+/* ===========================
+   FULL WIDTH NAVBAR
+=========================== */
+
+.site-header {
+    width: 100%;
+    background-color: #ffffff;
+    border-bottom: 1px solid #e4ebc6;
+    box-shadow: 0 2px 15px rgba(43,76,63,0.08);
+}
+
+.site-nav {
+    width: 100%;
+    height: 75px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 50px;
+}
+
+
+/* SmartLearn Logo */
+.site-nav__brand {
+    text-decoration: none;   /* remove underline */
+    font-family: "Raleway", sans-serif;
+    font-size: 26px;
+    font-weight: 900;
+    color: #4CAF7D;
+}
+
+
+/* Middle navigation */
+.site-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 35px;
+}
+
+
+.site-nav__links a {
+    text-decoration: none;
+    color: #555c58;
+    font-weight: 600;
+    font-size: 16px;
+    transition: 0.3s;
+}
+
+
+.site-nav__links a:hover {
+    color: #4CAF7D;
+}
+
+
+/* Right side Teacher + Profile */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+
+.teacher-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 600;
+    color: #2b4c3f;
+}
+
+
+/* Profile circle */
+.profile-placeholder {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background-color: #4CAF7D;
+}
+/* Ensure the form takes full width of the card */
+.filter-form {
+    width: 100%;
+}
+
+/* Force the filter row to align horizontally */
+.filter-row {
+    display: flex !important; /* Forces flexbox */
+    flex-direction: row;      /* Keeps items in a line */
+    gap: 15px;                /* Adds spacing between inputs */
+    align-items: center;      /* Vertically centers them */
+    width: 100%;
+}
+
+/* Explicit widths for your inputs */
+.search-input-width {
+    flex: 2; /* Takes more space */
+}
+
+.select-input-width {
+    flex: 1; /* Takes equal, smaller space */
+}
+
+.cards-grid {
+    display: grid;
+    /* This creates 3-4 columns automatically based on screen width */
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 60px;
+    margin-top: 20px;
+    padding: 20px;
+}
+.styled-card.class-card {
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    justify-content: space-between; /* Pushes button to the very bottom */
+    height: 100%; /* Ensures all cards in a row are the same height */
+    padding: 20px;
+}
+
+/* Ensure the button isn't floating */
+.class-card-footer {
+    margin-top: auto; /* Forces this to the bottom of the card */
+    padding-top: 15px;
+}
+.button-container {
+    display: flex;
+    justify-content: flex-end; /* This aligns the button to the right */
+    width: 100%;
+}
+.footer-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: auto; /* Pushes the whole footer to the bottom */
+    padding-top: 15px;
+}
+
+.teacher-info {
+    display: flex;
+    flex-direction: column;
+    /* Optional: limit width so text doesn't push the button */
+    max-width: 60%;
+}
+
+/* Ensure the button does not get squeezed */
+.button-container {
+    flex-shrink: 0;
+}

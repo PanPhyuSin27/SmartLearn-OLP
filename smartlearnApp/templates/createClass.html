@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Create Classroom - EduSage{% endblock %}
+
+{% block content %}
+<div class="centered-form-wrapper">
+    <a href="{% url 'browse_classes' %}?user={{ request.GET.user|default:'TestUser' }}" class="back-link">← Back to Browser</a>
+    <h2 class="page-heading-large">Create New Class</h2>
+    <p class="subtext-muted">Fill out the class info to publish it instantly.</p>
+
+    <div class="styled-card">
+        <form method="POST" action="{% url 'create_class' %}">
+            {% csrf_token %}
+
+            <label class="label-bold">Class Title</label>
+            <input type="text" name="title" class="form-control" placeholder="e.g. Advanced Python BootCamp">
+
+
+            <div style="display: flex; gap: 20px;">
+                <div style="flex: 1;">
+                    <label class="label-bold">Subject Category</label>
+                    <select name="subject" class="form-control">
+                        <option>Mathematics</option>
+                        <option>Science</option>
+                        <option>Coding/IT</option>
+                        <option>Languages</option>
+                        <option>Others</option>
+                        </select>
+                </div>
+
+            </div>
+
+            <label class="label-bold">Description</label>
+            <textarea name="description" class="form-control" rows="4" placeholder="Provide a brief summary..."></textarea>
+
+            <div class="form-actions-row">
+                <button type="submit" class="btn-primary">Publish Classroom</button>
+                <a href="#" class="btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+
+
+
+<script>
+    const publicToggle = document.getElementById('publicToggle');
+    const priceWrapper = document.getElementById('priceWrapper');
+
+    publicToggle.addEventListener('change', function() {
+        if (this.checked) {
+            priceWrapper.style.display = 'none';
+        } else {
+            priceWrapper.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}
