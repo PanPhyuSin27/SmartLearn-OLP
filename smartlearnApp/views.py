@@ -3,7 +3,7 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Classroom, Enrollment
+from .models import Classroom, Enrollment, Flashcard, MCQQuestion, QuizAttempt
 
 def get_mock_user(request=None):
     username = "TestUser"
@@ -83,6 +83,36 @@ def get_mock_user(request=None):
 
     user, created = User.objects.get_or_create(username=username)
     return user
+
+
+def user_can_enter_classroom(classroom, user):
+    if classroom.owner == user or classroom.class_type == 'public':
+        return True
+
+    return Enrollment.objects.filter(
+        classroom=classroom,
+        student=user,
+        status='approved'
+    ).exists()
+
+
+def user_can_create_learning_content(classroom, user):
+    if classroom.owner == user:
+        return True
+
+    return classroom.class_type == 'public'
+
+
+def require_classroom_access(request, classroom):
+    current_user = get_mock_user(request)
+    if user_can_enter_classroom(classroom, current_user):
+        return current_user, None
+
+    messages.error(
+        request,
+        "You need approval from the class owner before entering this private classroom."
+    )
+    return current_user, redirect('browse_classes')
 
 
 def browse_classes(request):
@@ -249,22 +279,9 @@ def classroom_detail(request, class_id):
         Classroom,
         class_id=class_id
     )
-    current_user = request.user if request.user.is_authenticated else get_mock_user(request)
-
-    is_owner = classroom.owner == current_user
-    is_public = classroom.class_type == 'public'
-    is_approved_student = Enrollment.objects.filter(
-        classroom=classroom,
-        student=current_user,
-        status='approved'
-    ).exists()
-
-    if not (is_owner or is_public or is_approved_student):
-        messages.error(
-            request,
-            "You need approval from the class owner before entering this private classroom."
-        )
-        return redirect('browse_classes')
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
 
     return render(
         request,
@@ -277,3 +294,170 @@ def classroom_detail(request, class_id):
 # ==========================================
 # Phase 5 done here by MHK
 # ==========================================
+
+
+def flashcards_view(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
+
+    can_create = user_can_create_learning_content(classroom, current_user)
+
+    if request.method == 'POST':
+        if not can_create:
+            messages.error(request, "Only the private class owner can create flashcards for this classroom.")
+            return redirect('flashcards', class_id=classroom.class_id)
+
+        topic = request.POST.get('topic', '').strip()
+        front = request.POST.get('front', '').strip()
+        back = request.POST.get('back', '').strip()
+
+        if topic and front and back:
+            Flashcard.objects.create(
+                classroom=classroom,
+                created_by=current_user,
+                topic=topic,
+                front=front,
+                back=back
+            )
+            messages.success(request, "Flashcard shared with this classroom.")
+            return redirect('flashcards', class_id=classroom.class_id)
+
+        messages.error(request, "Please fill in topic, front, and back.")
+
+    flashcards = Flashcard.objects.filter(classroom=classroom).select_related('created_by').order_by('topic', '-created_at')
+    topics = Flashcard.objects.filter(classroom=classroom).order_by('topic').values_list('topic', flat=True).distinct()
+
+    return render(request, 'flashcards.html', {
+        'classroom': classroom,
+        'flashcards': flashcards,
+        'topics': topics,
+        'can_create': can_create,
+        'current_user': current_user,
+    })
+
+
+def mcqs_view(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
+
+    can_create = user_can_create_learning_content(classroom, current_user)
+
+    if request.method == 'POST':
+        if not can_create:
+            messages.error(request, "Only the private class owner can create MCQs for this classroom.")
+            return redirect('mcqs', class_id=classroom.class_id)
+
+        topic = request.POST.get('topic', '').strip()
+        question = request.POST.get('question', '').strip()
+        option_a = request.POST.get('option_a', '').strip()
+        option_b = request.POST.get('option_b', '').strip()
+        option_c = request.POST.get('option_c', '').strip()
+        option_d = request.POST.get('option_d', '').strip()
+        correct_option = request.POST.get('correct_option', '').strip()
+        explanation = request.POST.get('explanation', '').strip()
+
+        if topic and question and option_a and option_b and option_c and option_d and correct_option:
+            MCQQuestion.objects.create(
+                classroom=classroom,
+                created_by=current_user,
+                topic=topic,
+                question=question,
+                option_a=option_a,
+                option_b=option_b,
+                option_c=option_c,
+                option_d=option_d,
+                correct_option=correct_option,
+                explanation=explanation
+            )
+            messages.success(request, "MCQ shared with this classroom.")
+            return redirect('mcqs', class_id=classroom.class_id)
+
+        messages.error(request, "Please complete the MCQ question and answer options.")
+
+    questions = MCQQuestion.objects.filter(classroom=classroom).select_related('created_by').order_by('topic', '-created_at')
+    topics = MCQQuestion.objects.filter(classroom=classroom).order_by('topic').values_list('topic', flat=True).distinct()
+
+    return render(request, 'mcqs.html', {
+        'classroom': classroom,
+        'questions': questions,
+        'topics': topics,
+        'can_create': can_create,
+        'current_user': current_user,
+    })
+
+
+def submit_quiz(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
+
+    if request.method != 'POST':
+        return redirect('mcqs', class_id=classroom.class_id)
+
+    questions = MCQQuestion.objects.filter(classroom=classroom).order_by('topic', 'question_id')
+    answers = {}
+    score = 0
+
+    for question in questions:
+        selected = request.POST.get(f'question_{question.question_id}', '')
+        is_correct = selected == question.correct_option
+        if is_correct:
+            score += 1
+
+        answers[str(question.question_id)] = {
+            'selected': selected,
+            'correct': question.correct_option,
+            'is_correct': is_correct,
+        }
+
+    attempt = QuizAttempt.objects.create(
+        classroom=classroom,
+        student=current_user,
+        score=score,
+        total_questions=questions.count(),
+        answers=answers
+    )
+
+    return redirect('quiz_result', attempt_id=attempt.attempt_id)
+
+
+def quiz_result(request, attempt_id):
+    attempt = get_object_or_404(
+        QuizAttempt.objects.select_related('classroom', 'student'),
+        attempt_id=attempt_id
+    )
+    current_user, blocked_response = require_classroom_access(request, attempt.classroom)
+    if blocked_response:
+        return blocked_response
+
+    if attempt.student != current_user and attempt.classroom.owner != current_user:
+        messages.error(request, "You can only view your own quiz result.")
+        return redirect('mcqs', class_id=attempt.classroom.class_id)
+
+    questions = MCQQuestion.objects.filter(classroom=attempt.classroom).order_by('topic', 'question_id')
+    reviewed_questions = []
+
+    for question in questions:
+        answer = attempt.answers.get(str(question.question_id), {})
+        selected = answer.get('selected', '')
+        reviewed_questions.append({
+            'question': question,
+            'selected': selected,
+            'selected_text': question.option_text(selected),
+            'correct_text': question.option_text(question.correct_option),
+            'is_correct': answer.get('is_correct', False),
+        })
+
+    percentage = round((attempt.score / attempt.total_questions) * 100) if attempt.total_questions else 0
+
+    return render(request, 'quiz_result.html', {
+        'attempt': attempt,
+        'classroom': attempt.classroom,
+        'reviewed_questions': reviewed_questions,
+        'percentage': percentage,
+    })

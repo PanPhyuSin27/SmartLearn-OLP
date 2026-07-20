@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Flashcards - {{ classroom.title }}{% endblock %}
+
+{% block content %}
+<div class="learning-page-header">
+    <a href="{% url 'classroom_detail' classroom.class_id %}" class="back-link">Back to Classroom</a>
+    <div class="learning-title-row">
+        <div>
+            <h2 class="page-heading-large">Flashcards</h2>
+            <p class="subtext-muted">{{ classroom.title }} study cards grouped by topic.</p>
+        </div>
+        <span class="status-badge {% if classroom.class_type == 'public' %}badge-public{% else %}badge-private{% endif %}">
+            {{ classroom.class_type|title }} Class
+        </span>
+    </div>
+</div>
+
+{% if messages %}
+    <div class="message-stack">
+        {% for message in messages %}
+            <div class="message-card">{{ message }}</div>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<div class="learning-layout">
+    <section class="styled-card">
+        <h3 class="section-heading">Study Sets</h3>
+        <div class="topic-list">
+            {% for topic in topics %}
+                <span class="topic-pill">{{ topic }}</span>
+            {% empty %}
+                <p class="subtext-muted">No flashcard topics yet.</p>
+            {% endfor %}
+        </div>
+
+        <div class="flashcard-grid">
+            {% for card in flashcards %}
+                <article class="study-flip-card">
+                    <div class="study-flip-card-inner">
+                        <div class="study-flip-face study-flip-front">
+                            <span class="topic-label">{{ card.topic }}</span>
+                            <h4>{{ card.front }}</h4>
+                            <small>By {{ card.created_by.username }}</small>
+                        </div>
+                        <div class="study-flip-face study-flip-back">
+                            <span class="topic-label">{{ card.topic }}</span>
+                            <p>{{ card.back }}</p>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty-text-centered">No flashcards yet. Create the first study card for this class.</p>
+            {% endfor %}
+        </div>
+    </section>
+
+    <aside class="styled-card create-panel">
+        <h3 class="section-heading">Create Flashcard</h3>
+        {% if can_create %}
+            <form method="POST">
+                {% csrf_token %}
+                <label class="label-bold">Topic</label>
+                <input type="text" name="topic" class="form-control" placeholder="e.g. Database Keys" required>
+
+                <label class="label-bold">Front</label>
+                <textarea name="front" class="form-control" rows="3" placeholder="Question or term" required></textarea>
+
+                <label class="label-bold">Back</label>
+                <textarea name="back" class="form-control" rows="4" placeholder="Answer or explanation" required></textarea>
+
+                <button type="submit" class="btn-primary full-width-btn">Share Flashcard</button>
+            </form>
+        {% else %}
+            <p class="subtext-muted">This private class only allows the owner to create shared flashcards. Approved participants can study everything here.</p>
+        {% endif %}
+    </aside>
+</div>
+{% endblock %}

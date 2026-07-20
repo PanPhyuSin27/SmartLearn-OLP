@@ -75,3 +75,61 @@ class Enrollment(models.Model):
     # ==========================================
     # Phase 2 done here by yoon
     # ==========================================
+
+
+class Flashcard(models.Model):
+    flashcard_id = models.AutoField(primary_key=True)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='flashcards')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flashcards')
+    topic = models.CharField(max_length=120)
+    front = models.TextField()
+    back = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.topic} - {self.front[:40]}"
+
+
+class MCQQuestion(models.Model):
+    OPTION_CHOICES = [
+        ('A', 'A'),
+        ('B', 'B'),
+        ('C', 'C'),
+        ('D', 'D'),
+    ]
+    question_id = models.AutoField(primary_key=True)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='mcq_questions')
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='mcq_questions')
+    topic = models.CharField(max_length=120)
+    question = models.TextField()
+    option_a = models.CharField(max_length=255)
+    option_b = models.CharField(max_length=255)
+    option_c = models.CharField(max_length=255)
+    option_d = models.CharField(max_length=255)
+    correct_option = models.CharField(max_length=1, choices=OPTION_CHOICES)
+    explanation = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.topic} - {self.question[:40]}"
+
+    def option_text(self, option):
+        return {
+            'A': self.option_a,
+            'B': self.option_b,
+            'C': self.option_c,
+            'D': self.option_d,
+        }.get(option, '')
+
+
+class QuizAttempt(models.Model):
+    attempt_id = models.AutoField(primary_key=True)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='quiz_attempts')
+    student = models.ForeignKey(User, on_delete=models.CASCADE, related_name='quiz_attempts')
+    score = models.IntegerField(default=0)
+    total_questions = models.IntegerField(default=0)
+    answers = models.JSONField(default=dict)
+    taken_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.student.username} - {self.classroom.title} ({self.score}/{self.total_questions})"

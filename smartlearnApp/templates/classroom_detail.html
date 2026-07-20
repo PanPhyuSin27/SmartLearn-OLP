@@ -80,6 +80,8 @@
 
 .menu-item {
 
+    display:block;
+
     padding:14px 15px;
 
     border-radius:14px;
@@ -89,6 +91,8 @@
     color:var(--text);
 
     font-weight:600;
+
+    text-decoration:none;
 
     transition:.3s;
 
@@ -315,6 +319,8 @@
 .module-card {
 
 
+    display:block;
+
     background:white;
 
     border-radius:22px;
@@ -322,6 +328,8 @@
     padding:30px 20px;
 
     text-align:center;
+
+    text-decoration:none;
 
     border:1px solid var(--border);
 
@@ -549,22 +557,22 @@ Smart<span>Learn</span>
 </div>
 
 
-<div class="menu-item">
+<a href="{% url 'my_classes' %}" class="menu-item">
 <i class="fa-solid fa-book"></i>
  My Classes
-</div>
+</a>
 
 
-<div class="menu-item">
+<a href="{% url 'flashcards' classroom.class_id %}" class="menu-item">
 <i class="fa-solid fa-layer-group"></i>
  Flashcards
-</div>
+</a>
 
 
-<div class="menu-item">
+<a href="{% url 'mcqs' classroom.class_id %}" class="menu-item">
 <i class="fa-solid fa-list-check"></i>
  Quizzes
-</div>
+</a>
 
 
 </div>
@@ -661,111 +669,37 @@ Join Workspace
 
 <div class="module-grid">
 
-
-
 <div class="module-card">
-
 <div class="module-icon">
-
 <i class="fa-solid fa-folder-open"></i>
-
 </div>
-
-
-<h5>
-Teacher Materials
-</h5>
-
-
-<p>
-Learning resources and course files.
-</p>
-
-
+<h5>Teacher Materials</h5>
+<p>Learning resources and course files.</p>
 </div>
-
-
-
-
 
 <div class="module-card">
-
-
 <div class="module-icon">
-
 <i class="fa-solid fa-users"></i>
-
+</div>
+<h5>Community Notes</h5>
+<p>Student shared knowledge.</p>
 </div>
 
-
-<h5>
-Community Notes
-</h5>
-
-
-<p>
-Student shared knowledge.
-</p>
-
-
-</div>
-
-
-
-
-
-
-<div class="module-card">
-
-
+<a href="{% url 'flashcards' classroom.class_id %}" class="module-card">
 <div class="module-icon">
-
 <i class="fa-solid fa-layer-group"></i>
-
 </div>
+<h5>Flashcards</h5>
+<p>Memory learning system.</p>
+</a>
 
-
-<h5>
-Flashcards
-</h5>
-
-
-<p>
-Memory learning system.
-</p>
-
-
-</div>
-
-
-
-
-
-
-<div class="module-card">
-
-
+<a href="{% url 'mcqs' classroom.class_id %}" class="module-card">
 <div class="module-icon">
-
 <i class="fa-solid fa-clipboard-question"></i>
-
 </div>
-
-
-<h5>
-MCQs
-</h5>
-
-
-<p>
-Exam preparation practice.
-</p>
-
-
-</div>
-
-
-
+<h5>MCQs</h5>
+<p>Exam preparation practice.</p>
+</a>
 
 </div>
 
