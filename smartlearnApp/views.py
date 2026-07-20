@@ -3,7 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import User
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .models import Classroom, Enrollment, Flashcard, MCQQuestion, QuizAttempt
+from collections import OrderedDict
+from django.db.models import Count
+from django.utils.text import slugify
+from .models import Classroom, Enrollment, Flashcard, FlashcardTopicReaction, MCQQuestion, QuizAttempt
 
 def get_mock_user(request=None):
     username = "TestUser"
@@ -309,33 +312,160 @@ def flashcards_view(request, class_id):
             messages.error(request, "Only the private class owner can create flashcards for this classroom.")
             return redirect('flashcards', class_id=classroom.class_id)
 
-        topic = request.POST.get('topic', '').strip()
-        front = request.POST.get('front', '').strip()
-        back = request.POST.get('back', '').strip()
+        shared_topic = request.POST.get('topic', '').strip()
+        fronts = request.POST.getlist('front') or [request.POST.get('front', '')]
+        backs = request.POST.getlist('back') or [request.POST.get('back', '')]
 
-        if topic and front and back:
+        created_count = 0
+        for front, back in zip(fronts, backs):
+            front = front.strip()
+            back = back.strip()
+
+            if not shared_topic or not front or not back:
+                continue
+
             Flashcard.objects.create(
                 classroom=classroom,
                 created_by=current_user,
-                topic=topic,
+                topic=shared_topic,
                 front=front,
                 back=back
             )
-            messages.success(request, "Flashcard shared with this classroom.")
+            created_count += 1
+
+        if created_count:
+            messages.success(request, f"Shared {created_count} flashcard{'s' if created_count != 1 else ''} with this classroom.")
             return redirect('flashcards', class_id=classroom.class_id)
 
-        messages.error(request, "Please fill in topic, front, and back.")
+        messages.error(request, "Please fill in the topic, front, and back for at least one flashcard.")
 
-    flashcards = Flashcard.objects.filter(classroom=classroom).select_related('created_by').order_by('topic', '-created_at')
-    topics = Flashcard.objects.filter(classroom=classroom).order_by('topic').values_list('topic', flat=True).distinct()
+    flashcards = list(
+        Flashcard.objects.filter(classroom=classroom)
+        .select_related('created_by')
+        .order_by('topic', '-created_at')
+    )
+
+    topic_groups = []
+    topic_map = OrderedDict()
+
+    for flashcard in flashcards:
+        group = topic_map.get(flashcard.topic)
+        if not group:
+            group = {
+                'topic': flashcard.topic,
+                'topic_slug': slugify(flashcard.topic) or 'flashcard-topic',
+                'cards': [],
+                'contributors': [],
+                'primary_creator': flashcard.created_by.username,
+                'preview_front': flashcard.front,
+                'preview_back': flashcard.back,
+            }
+            topic_map[flashcard.topic] = group
+            topic_groups.append(group)
+
+        group['cards'].append(flashcard)
+        if flashcard.created_by.username not in group['contributors']:
+            group['contributors'].append(flashcard.created_by.username)
+
+    reaction_totals = FlashcardTopicReaction.objects.filter(classroom=classroom).values(
+        'topic', 'reaction_type'
+    ).annotate(total=Count('topic_reaction_id'))
+    reaction_lookup = {
+        (entry['topic'], entry['reaction_type']): entry['total']
+        for entry in reaction_totals
+    }
+    current_reactions = set(
+        FlashcardTopicReaction.objects.filter(classroom=classroom, user=current_user)
+        .values_list('topic', 'reaction_type')
+    )
+
+    topic_groups_payload = []
+    for group in topic_groups:
+        contributor_count = len(group['contributors'])
+        if contributor_count == 1:
+            contributor_summary = group['contributors'][0]
+        else:
+            contributor_summary = f"{group['contributors'][0]} + {contributor_count - 1} more"
+
+        group['total_cards'] = len(group['cards'])
+        group['contributor_summary'] = contributor_summary
+        group['like_count'] = reaction_lookup.get((group['topic'], 'like'), 0)
+        group['save_count'] = reaction_lookup.get((group['topic'], 'save'), 0)
+        group['user_liked'] = (group['topic'], 'like') in current_reactions
+        group['user_saved'] = (group['topic'], 'save') in current_reactions
+
+        topic_groups_payload.append({
+            'topic': group['topic'],
+            'topic_slug': group['topic_slug'],
+            'total_cards': group['total_cards'],
+            'primary_creator': group['primary_creator'],
+            'contributor_summary': group['contributor_summary'],
+            'like_count': group['like_count'],
+            'save_count': group['save_count'],
+            'user_liked': group['user_liked'],
+            'user_saved': group['user_saved'],
+            'cards': [
+                {
+                    'flashcard_id': card.flashcard_id,
+                    'front': card.front,
+                    'back': card.back,
+                    'created_by': card.created_by.username,
+                    'created_at': card.created_at.strftime('%b %d, %Y'),
+                }
+                for card in group['cards']
+            ],
+        })
+
+    total_flashcards = len(flashcards)
+    total_topics = len(topic_groups)
 
     return render(request, 'flashcards.html', {
         'classroom': classroom,
-        'flashcards': flashcards,
-        'topics': topics,
+        'topic_groups': topic_groups,
+        'topic_groups_payload': topic_groups_payload,
+        'total_flashcards': total_flashcards,
+        'total_topics': total_topics,
         'can_create': can_create,
         'current_user': current_user,
     })
+
+
+def toggle_flashcard_topic_reaction(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
+
+    if request.method != 'POST':
+        return redirect('flashcards', class_id=classroom.class_id)
+
+    topic = request.POST.get('topic', '').strip()
+    reaction_type = request.POST.get('reaction_type', '').strip()
+
+    if not topic or reaction_type not in {'like', 'save'}:
+        messages.error(request, 'Please choose a valid topic reaction.')
+        return redirect('flashcards', class_id=classroom.class_id)
+
+    reaction = FlashcardTopicReaction.objects.filter(
+        classroom=classroom,
+        user=current_user,
+        topic=topic,
+        reaction_type=reaction_type,
+    ).first()
+
+    if reaction:
+        reaction.delete()
+        messages.info(request, f'Removed your {reaction_type} from {topic}.')
+    else:
+        FlashcardTopicReaction.objects.create(
+            classroom=classroom,
+            user=current_user,
+            topic=topic,
+            reaction_type=reaction_type,
+        )
+        messages.success(request, f'{reaction_type.title()}d {topic}.')
+
+    return redirect('flashcards', class_id=classroom.class_id)
 
 
 def mcqs_view(request, class_id):
@@ -351,20 +481,40 @@ def mcqs_view(request, class_id):
             messages.error(request, "Only the private class owner can create MCQs for this classroom.")
             return redirect('mcqs', class_id=classroom.class_id)
 
-        topic = request.POST.get('topic', '').strip()
-        question = request.POST.get('question', '').strip()
-        option_a = request.POST.get('option_a', '').strip()
-        option_b = request.POST.get('option_b', '').strip()
-        option_c = request.POST.get('option_c', '').strip()
-        option_d = request.POST.get('option_d', '').strip()
-        correct_option = request.POST.get('correct_option', '').strip()
-        explanation = request.POST.get('explanation', '').strip()
+        shared_topic = request.POST.get('topic', '').strip()
+        questions = request.POST.getlist('question') or [request.POST.get('question', '')]
+        option_a_list = request.POST.getlist('option_a') or [request.POST.get('option_a', '')]
+        option_b_list = request.POST.getlist('option_b') or [request.POST.get('option_b', '')]
+        option_c_list = request.POST.getlist('option_c') or [request.POST.get('option_c', '')]
+        option_d_list = request.POST.getlist('option_d') or [request.POST.get('option_d', '')]
+        correct_options = request.POST.getlist('correct_option') or [request.POST.get('correct_option', '')]
+        explanations = request.POST.getlist('explanation') or [request.POST.get('explanation', '')]
 
-        if topic and question and option_a and option_b and option_c and option_d and correct_option:
+        created_count = 0
+        for question, option_a, option_b, option_c, option_d, correct_option, explanation in zip(
+            questions,
+            option_a_list,
+            option_b_list,
+            option_c_list,
+            option_d_list,
+            correct_options,
+            explanations,
+        ):
+            question = question.strip()
+            option_a = option_a.strip()
+            option_b = option_b.strip()
+            option_c = option_c.strip()
+            option_d = option_d.strip()
+            correct_option = correct_option.strip()
+            explanation = explanation.strip()
+
+            if not shared_topic or not question or not option_a or not option_b or not option_c or not option_d or not correct_option:
+                continue
+
             MCQQuestion.objects.create(
                 classroom=classroom,
                 created_by=current_user,
-                topic=topic,
+                topic=shared_topic,
                 question=question,
                 option_a=option_a,
                 option_b=option_b,
@@ -373,19 +523,91 @@ def mcqs_view(request, class_id):
                 correct_option=correct_option,
                 explanation=explanation
             )
-            messages.success(request, "MCQ shared with this classroom.")
+            created_count += 1
+
+        if created_count:
+            messages.success(request, f"Shared {created_count} MCQ{'s' if created_count != 1 else ''} with this classroom.")
             return redirect('mcqs', class_id=classroom.class_id)
 
-        messages.error(request, "Please complete the MCQ question and answer options.")
+        messages.error(request, "Please complete the topic, question, options, and correct answer for at least one MCQ.")
 
-    questions = MCQQuestion.objects.filter(classroom=classroom).select_related('created_by').order_by('topic', '-created_at')
-    topics = MCQQuestion.objects.filter(classroom=classroom).order_by('topic').values_list('topic', flat=True).distinct()
+    questions = list(
+        MCQQuestion.objects.filter(classroom=classroom)
+        .select_related('created_by')
+        .order_by('topic', '-created_at')
+    )
+
+    topic_groups = []
+    topic_map = OrderedDict()
+
+    for question_item in questions:
+        group = topic_map.get(question_item.topic)
+        if not group:
+            group = {
+                'topic': question_item.topic,
+                'topic_slug': slugify(question_item.topic) or 'mcq-topic',
+                'questions': [],
+                'contributors': [],
+                'primary_creator': question_item.created_by.username,
+                'preview_question': question_item.question,
+            }
+            topic_map[question_item.topic] = group
+            topic_groups.append(group)
+
+        group['questions'].append(question_item)
+        if question_item.created_by.username not in group['contributors']:
+            group['contributors'].append(question_item.created_by.username)
+
+    topic_groups_payload = []
+    for group in topic_groups:
+        contributor_count = len(group['contributors'])
+        if contributor_count == 1:
+            contributor_summary = group['contributors'][0]
+        else:
+            contributor_summary = f"{group['contributors'][0]} + {contributor_count - 1} more"
+
+        topic_groups_payload.append({
+            'topic': group['topic'],
+            'topic_slug': group['topic_slug'],
+            'total_questions': len(group['questions']),
+            'primary_creator': group['primary_creator'],
+            'contributor_summary': contributor_summary,
+            'preview_question': group['preview_question'],
+        })
+
+    total_questions = len(questions)
+    total_topics = len(topic_groups)
 
     return render(request, 'mcqs.html', {
         'classroom': classroom,
-        'questions': questions,
-        'topics': topics,
+        'topic_groups': topic_groups,
+        'topic_groups_payload': topic_groups_payload,
+        'total_questions': total_questions,
+        'total_topics': total_topics,
         'can_create': can_create,
+        'current_user': current_user,
+    })
+
+
+def take_quiz_view(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    current_user, blocked_response = require_classroom_access(request, classroom)
+    if blocked_response:
+        return blocked_response
+
+    selected_topic = request.GET.get('topic', '').strip()
+    questions = MCQQuestion.objects.filter(classroom=classroom).select_related('created_by').order_by('topic', 'question_id')
+
+    if selected_topic:
+        questions = questions.filter(topic=selected_topic)
+
+    questions = list(questions)
+
+    return render(request, 'take_mcq_quiz.html', {
+        'classroom': classroom,
+        'questions': questions,
+        'selected_topic': selected_topic,
+        'question_count': len(questions),
         'current_user': current_user,
     })
 
@@ -399,7 +621,11 @@ def submit_quiz(request, class_id):
     if request.method != 'POST':
         return redirect('mcqs', class_id=classroom.class_id)
 
+    selected_topic = request.POST.get('topic', '').strip()
     questions = MCQQuestion.objects.filter(classroom=classroom).order_by('topic', 'question_id')
+    if selected_topic:
+        questions = questions.filter(topic=selected_topic)
+
     answers = {}
     score = 0
 

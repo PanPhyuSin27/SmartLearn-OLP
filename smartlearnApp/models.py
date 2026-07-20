@@ -90,6 +90,26 @@ class Flashcard(models.Model):
         return f"{self.topic} - {self.front[:40]}"
 
 
+class FlashcardTopicReaction(models.Model):
+    REACTION_TYPES = [
+        ('like', 'Like'),
+        ('save', 'Save'),
+    ]
+
+    topic_reaction_id = models.AutoField(primary_key=True)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='flashcard_topic_reactions')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flashcard_topic_reactions')
+    topic = models.CharField(max_length=120)
+    reaction_type = models.CharField(max_length=10, choices=REACTION_TYPES)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ('classroom', 'user', 'topic', 'reaction_type')
+
+    def __str__(self):
+        return f"{self.user.username} {self.reaction_type}d {self.topic}"
+
+
 class MCQQuestion(models.Model):
     OPTION_CHOICES = [
         ('A', 'A'),
