@@ -15,9 +15,11 @@ urlpatterns = [
     path('delete/<int:class_id>/', views.delete_class, name='delete_class'),
     path('join-request/<int:class_id>/', views.request_join_class, name='request_join_class'),
     # path('dashboard.html', views.serve_dashboard_page, name='dashboard_page'),
-     path('profile/edit/', views.profile_edit, name='profile_edit'),    # Teacher features
+    path('profile/edit/', views.profile_edit, name='profile_edit'),    # Teacher features
     path('manage/<int:class_id>/', views.manage_enrollments, name='manage_enrollments'),
     path('enrollment-decision/<int:enrollment_id>/<str:action>/', views.update_enrollment_status, name='update_enrollment_status'),
+    path('classroom/<int:class_id>/',views.classroom_detail,name='classroom_detail'),
+
 ]
 
 

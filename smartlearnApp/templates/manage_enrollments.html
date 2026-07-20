@@ -5,7 +5,7 @@
 <div style="margin-bottom: 25px;">
     <a href="{% url 'browse_classes' %}" class="back-link">← Back to Browser</a>
     <h2 class="page-heading-large">Roster Management</h2>
-    <p class="subtext-muted">Classroom: <strong>{{ classroom.name }}</strong></p>
+    <p class="subtext-muted">Classroom: <strong>{{ classroom.title }}</strong></p>
 </div>
 
 <div class="roster-split-layout">
@@ -20,8 +20,8 @@
                         <small class="subtext-muted">Applied: {{ req.requested_at|date:"M d, Y" }}</small>
                     </div>
                     <div class="roster-action-group">
-                        <a href="{% url 'update_enrollment_status' req.id 'approve' %}" class="btn-primary btn-approve-status">Approve</a>
-                        <a href="{% url 'update_enrollment_status' req.id 'reject' %}" class="btn-secondary btn-reject-status">Reject</a>
+                        <a href="{% url 'update_enrollment_status' req.enrollment_id 'approve' %}" class="btn-primary btn-approve-status">Approve</a>
+                        <a href="{% url 'update_enrollment_status' req.enrollment_id 'reject' %}" class="btn-secondary btn-reject-status">Reject</a>
                     </div>
                 </div>
             {% empty %}

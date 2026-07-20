@@ -388,49 +388,231 @@ textarea.form-control {
     flex: 1; /* Takes equal, smaller space */
 }
 
-.cards-grid {
-    display: grid;
-    /* This creates 3-4 columns automatically based on screen width */
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 60px;
-    margin-top: 20px;
-    padding: 20px;
-}
-.styled-card.class-card {
-    display: flex;
-    flex-direction: column; /* Stacks items vertically */
-    justify-content: space-between; /* Pushes button to the very bottom */
-    height: 100%; /* Ensures all cards in a row are the same height */
-    padding: 20px;
-}
-
-/* Ensure the button isn't floating */
-.class-card-footer {
-    margin-top: auto; /* Forces this to the bottom of the card */
-    padding-top: 15px;
-}
-.button-container {
-    display: flex;
-    justify-content: flex-end; /* This aligns the button to the right */
-    width: 100%;
-}
-.footer-row {
+.page-title-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
-    margin-top: auto; /* Pushes the whole footer to the bottom */
-    padding-top: 15px;
+    gap: 20px;
+}
+
+.access-choice-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    margin-top: 10px;
+}
+
+.access-choice {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 16px;
+    border: 1px solid #d9dfc5;
+    border-radius: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.access-choice:has(input:checked) {
+    border-color: #4CAF7D;
+    background: #eef8f2;
+    box-shadow: 0 0 0 4px rgba(76,175,125,0.12);
+}
+
+.access-choice input {
+    margin-top: 4px;
+}
+
+.access-choice strong,
+.access-choice small {
+    display: block;
+}
+
+.access-choice strong {
+    color: #2b4c3f;
+    font-size: 15px;
+}
+
+.access-choice small {
+    color: #6b756f;
+    line-height: 1.5;
+    margin-top: 4px;
+}
+
+.price-wrapper {
+    margin-top: 10px;
+}
+
+.content-header-box,
+.filter-panel {
+    margin-bottom: 24px;
+}
+
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 8px;
+}
+
+.styled-card.class-card {
+    display: flex;
+    flex-direction: column;
+    min-height: 260px;
+    padding: 24px;
+}
+
+.class-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.class-card-title {
+    color: #2b4c3f;
+    font-size: 21px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin: 0;
+    overflow-wrap: anywhere;
+}
+
+.status-badge {
+    flex: 0 0 auto;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 800;
+    padding: 7px 12px;
+}
+
+.badge-public {
+    background: #e9f8ef;
+    color: #2f875b;
+}
+
+.badge-private {
+    background: #fff2e8;
+    color: #b85e2d;
+}
+
+.class-card-desc {
+    color: #6b756f;
+    line-height: 1.6;
+    margin: 18px 0 24px;
+}
+
+.class-card-footer {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid #eef2e4;
 }
 
 .teacher-info {
     display: flex;
     flex-direction: column;
-    /* Optional: limit width so text doesn't push the button */
-    max-width: 60%;
+    min-width: 0;
 }
 
-/* Ensure the button does not get squeezed */
-.button-container {
-    flex-shrink: 0;
+.footer-text-small {
+    color: #7b857f;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.footer-text-bold {
+    color: #2b4c3f;
+    font-size: 15px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-left: auto;
+    min-width: 130px;
+    text-align: right;
+}
+
+.card-action-btn-small {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    padding: 9px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.delete-link {
+    color: #c86a4b;
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.delete-link:hover {
+    color: #9f4428;
+}
+
+.status-text-pending {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 38px;
+    color: #7a4e00;
+    background: #fff3c4;
+    border: 1px solid #f0cf69;
+    border-radius: 10px;
+    box-shadow: 0 6px 14px rgba(155, 107, 24, 0.12);
+    font-size: 13px;
+    font-weight: 800;
+    line-height: 1.2;
+    padding: 9px 14px;
+    white-space: nowrap;
+}
+
+.empty-text-centered {
+    color: #6b756f;
+    grid-column: 1 / -1;
+    padding: 40px 0;
+    text-align: center;
+}
+
+@media(max-width:768px){
+    .page-title-row,
+    .filter-row,
+    .class-card-footer {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .card-actions {
+        justify-content: flex-start;
+        margin-left: 0;
+        text-align: left;
+    }
+
+    .search-input-width,
+    .select-input-width {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .access-choice-row {
+        grid-template-columns: 1fr;
+    }
 }

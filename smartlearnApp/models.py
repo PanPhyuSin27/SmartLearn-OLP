@@ -73,5 +73,5 @@ class Enrollment(models.Model):
 
 
     # ==========================================
-    # Phase 1 done here by yoon
+    # Phase 2 done here by yoon
     # ==========================================

@@ -73,6 +73,9 @@ def get_mock_user(request=None):
     ONE UNIFIED HELPER: Dynamically switch test users by checking POST body, 
     GET parameters, or falling back to 'TestUser'.
     """
+    if request and request.user.is_authenticated:
+        return request.user
+
     username = "TestUser"
     if request:
         # Check POST payload first (important for forms), then query string strings
@@ -133,7 +136,7 @@ def create_class(request):
         title = request.POST.get('title')
         subject = request.POST.get('subject')
         description = request.POST.get('description')
-        class_type2 = request.POST.get('class_type')
+        class_type2 = request.POST.get('class_type', 'public')
         price = request.POST.get('price', 0.00)
 
         if class_type2 == 'public':
@@ -224,7 +227,7 @@ def update_enrollment_status(request, enrollment_id, action):
             enrollment.status = 'rejected'
             enrollment.save()
 
-    return redirect('classes:manage_enrollments', class_id=enrollment.classroom.class_id)
+    return redirect('manage_enrollments', class_id=enrollment.classroom.class_id)
 
 
 def serve_dashboard_page(request):
@@ -239,4 +242,38 @@ def profile_edit():
 
 # ==========================================
 # Phase 1 done here by yoon
+# ==========================================
+def classroom_detail(request, class_id):
+
+    classroom = get_object_or_404(
+        Classroom,
+        class_id=class_id
+    )
+    current_user = request.user if request.user.is_authenticated else get_mock_user(request)
+
+    is_owner = classroom.owner == current_user
+    is_public = classroom.class_type == 'public'
+    is_approved_student = Enrollment.objects.filter(
+        classroom=classroom,
+        student=current_user,
+        status='approved'
+    ).exists()
+
+    if not (is_owner or is_public or is_approved_student):
+        messages.error(
+            request,
+            "You need approval from the class owner before entering this private classroom."
+        )
+        return redirect('browse_classes')
+
+    return render(
+        request,
+        "classroom_detail.html",
+        {
+            "classroom": classroom
+        }
+    )
+
+# ==========================================
+# Phase 5 done here by MHK
 # ==========================================
