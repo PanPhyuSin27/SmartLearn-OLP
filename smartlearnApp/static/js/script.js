@@ -135,7 +135,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        const topicMap = new Map(topicGroups.map((group) => [group.topic_slug, group]));
+        const topicMap = new Map(topicGroups.map((group) => [group.modal_key || group.topic_slug, group]));
         const modalTopic = document.getElementById("flashcard-learn-topic");
         const modalTitle = document.getElementById("flashcard-learn-title");
         const modalCard = document.getElementById("flashcard-modal-card");

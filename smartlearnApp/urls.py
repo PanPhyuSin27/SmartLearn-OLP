@@ -25,6 +25,8 @@ urlpatterns = [
     path('classroom/<int:class_id>/mcqs/take/', views.take_quiz_view, name='take_quiz'),
     path('classroom/<int:class_id>/mcqs/submit/', views.submit_quiz, name='submit_quiz'),
     path('quiz-result/<int:attempt_id>/', views.quiz_result, name='quiz_result'),
+    path('flashcards/', views.all_flashcards_view, name='all_flashcards'),
+    path('mcqs/', views.all_mcqs_view, name='all_mcqs'),
 
 ]
 

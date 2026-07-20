@@ -118,6 +118,17 @@ def require_classroom_access(request, classroom):
     return current_user, redirect('browse_classes')
 
 
+def get_accessible_classrooms(user):
+    classrooms = Classroom.objects.select_related('owner').all().order_by('title')
+    accessible = []
+
+    for classroom in classrooms:
+        if user_can_enter_classroom(classroom, user):
+            accessible.append(classroom)
+
+    return accessible
+
+
 def browse_classes(request):
     current_user = get_mock_user(request)
 
@@ -427,6 +438,116 @@ def flashcards_view(request, class_id):
         'total_topics': total_topics,
         'can_create': can_create,
         'current_user': current_user,
+    })
+
+
+def all_flashcards_view(request):
+    current_user = get_mock_user(request)
+    accessible_classrooms = get_accessible_classrooms(current_user)
+
+    flashcard_groups = []
+    for classroom in accessible_classrooms:
+        classroom_flashcards = list(
+            Flashcard.objects.filter(classroom=classroom)
+            .select_related('created_by')
+            .order_by('topic', '-created_at')
+        )
+
+        classroom_topic_map = OrderedDict()
+        for flashcard in classroom_flashcards:
+            group_key = flashcard.topic
+            group = classroom_topic_map.get(group_key)
+            if not group:
+                group = {
+                    'classroom_id': classroom.class_id,
+                    'classroom_title': classroom.title,
+                    'class_type': classroom.class_type,
+                    'topic': flashcard.topic,
+                    'topic_slug': slugify(flashcard.topic) or 'flashcard-topic',
+                    'modal_key': f'{classroom.class_id}-{slugify(flashcard.topic) or "flashcard-topic"}',
+                    'cards': [],
+                    'contributors': [],
+                    'primary_creator': flashcard.created_by.username,
+                    'preview_front': flashcard.front,
+                }
+                classroom_topic_map[group_key] = group
+
+            group['cards'].append({
+                'front': flashcard.front,
+                'back': flashcard.back,
+            })
+            if flashcard.created_by.username not in group['contributors']:
+                group['contributors'].append(flashcard.created_by.username)
+
+        for group in classroom_topic_map.values():
+            contributor_count = len(group['contributors'])
+            if contributor_count == 1:
+                contributor_summary = group['contributors'][0]
+            else:
+                contributor_summary = f"{group['contributors'][0]} + {contributor_count - 1} more"
+
+            group['total_cards'] = len(group['cards'])
+            group['contributor_summary'] = contributor_summary
+            flashcard_groups.append(group)
+
+    return render(request, 'all_flashcards.html', {
+        'current_user': current_user,
+        'flashcard_groups': flashcard_groups,
+        'total_flashcards': sum(group['total_cards'] for group in flashcard_groups),
+        'total_topics': len(flashcard_groups),
+    })
+
+
+def all_mcqs_view(request):
+    current_user = get_mock_user(request)
+    accessible_classrooms = get_accessible_classrooms(current_user)
+
+    mcq_groups = []
+    for classroom in accessible_classrooms:
+        classroom_questions = list(
+            MCQQuestion.objects.filter(classroom=classroom)
+            .select_related('created_by')
+            .order_by('topic', '-created_at')
+        )
+
+        classroom_topic_map = OrderedDict()
+        for question_item in classroom_questions:
+            group_key = question_item.topic
+            group = classroom_topic_map.get(group_key)
+            if not group:
+                group = {
+                    'classroom_id': classroom.class_id,
+                    'classroom_title': classroom.title,
+                    'class_type': classroom.class_type,
+                    'topic': question_item.topic,
+                    'topic_slug': slugify(question_item.topic) or 'mcq-topic',
+                    'preview_question': question_item.question,
+                    'questions': [],
+                    'contributors': [],
+                    'primary_creator': question_item.created_by.username,
+                }
+                classroom_topic_map[group_key] = group
+
+            group['questions'].append(question_item)
+            if question_item.created_by.username not in group['contributors']:
+                group['contributors'].append(question_item.created_by.username)
+
+        for group in classroom_topic_map.values():
+            contributor_count = len(group['contributors'])
+            if contributor_count == 1:
+                contributor_summary = group['contributors'][0]
+            else:
+                contributor_summary = f"{group['contributors'][0]} + {contributor_count - 1} more"
+
+            group['total_questions'] = len(group['questions'])
+            group['contributor_summary'] = contributor_summary
+            mcq_groups.append(group)
+
+    return render(request, 'all_mcqs.html', {
+        'current_user': current_user,
+        'mcq_groups': mcq_groups,
+        'total_questions': sum(group['total_questions'] for group in mcq_groups),
+        'total_topics': len(mcq_groups),
     })
 
 

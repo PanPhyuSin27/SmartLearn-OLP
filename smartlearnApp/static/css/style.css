@@ -802,7 +802,7 @@ textarea.form-control {
     height: 100%;
     position: relative;
     transform-style: preserve-3d;
-    transition: transform 0.45s;
+    transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .study-flip-card:hover .study-flip-card-inner {
