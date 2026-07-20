@@ -773,6 +773,16 @@ def submit_quiz(request, class_id):
     return redirect('quiz_result', attempt_id=attempt.attempt_id)
 
 
+def my_results_view(request):
+    current_user = get_mock_user(request)
+    attempts = QuizAttempt.objects.filter(student=current_user).select_related('classroom').order_by('-taken_at')
+
+    return render(request, 'my_results.html', {
+        'attempts': attempts,
+        'current_user': current_user,
+    })
+
+
 def quiz_result(request, attempt_id):
     attempt = get_object_or_404(
         QuizAttempt.objects.select_related('classroom', 'student'),
