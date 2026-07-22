@@ -4,51 +4,224 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Classroom Platform{% endblock %}</title>
-   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <title>{% block title %}SmartLearn - Ecosystem{% endblock %}</title>
+
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Raleway:wght@700;800;900&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: "Open Sans", sans-serif; background-color: #f8faf9; color: #333; overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6 { font-family: "Raleway", sans-serif; font-weight: 700; color: #2b4c3f; }
+
+        /* Unified Navbar */
+        .navbar {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e4ebc6;
+            padding: 15px 0;
+            box-shadow: 0 2px 15px rgba(43, 76, 63, 0.02);
+        }
+        .logo {
+            font-family: "Raleway", sans-serif;
+            font-size: 25px;
+            font-weight: 900;
+            color: #4CAF7D;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .nav-link {
+            font-weight: 600;
+            color: #555c58 !important;
+            font-size: 15px;
+            transition: 0.2s ease-in-out;
+        }
+        .nav-link:hover { color: #4CAF7D !important; }
+
+        /* Teacher Toggle Button Styling */
+        .teacher-toggle-box {
+            background-color: #f1f0d9;
+            border: 1px solid #e4ebc6;
+            padding: 6px 12px;
+            border-radius: 20px;
+        }
+
+        /* Buttons */
+        .btn-matcha-primary {
+            background-color: #4CAF7D; color: #ffffff; font-weight: 700;
+            border-radius: 12px; padding: 10px 22px; border: none; transition: all 0.3s ease;
+        }
+        .btn-matcha-primary:hover { background-color: #3f9d70; color: #ffffff; }
+        .btn-matcha-outline {
+            background-color: transparent; color: #4CAF7D; font-weight: 700;
+            border-radius: 12px; padding: 9px 20px; border: 2px solid #4CAF7D; transition: all 0.3s ease;
+        }
+        .btn-matcha-outline:hover { background-color: #4CAF7D; color: #ffffff; }
+
+        /* Footer */
+        .main-footer {
+            background-color: #2b4c3f; color: #e2ebe7; padding: 60px 0 20px 0; margin-top: 80px; border-top: 5px solid #4CAF7D;
+        }
+        .footer-logo { font-family: "Raleway", sans-serif; font-size: 24px; font-weight: 900; color: #fff; text-decoration: none; }
+    </style>
+    {% block extra_css %}{% endblock %}
 </head>
 <body>
 
+    <!-- SHARED GLOBAL NAVBAR -->
+    <header class="navbar navbar-expand-lg navbar-light sticky-top">
+        <div class="container">
+            <a href="{% url 'home' %}" class="logo">
+                <i class="fa-solid fa-graduation-cap"></i> SmartLearn
+            </a>
 
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNavbar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
+            <div class="collapse navbar-collapse" id="mainNavbar">
+                <ul class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link px-3" href="{% url 'home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{% url 'dashboard' %}">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{% url 'browse_classes' %}">Classes</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{% url 'all_flashcards' %}">Flashcards</a></li>
+                    <li class="nav-item"><a class="nav-link px-3" href="{% url 'all_mcqs' %}">MCQs</a></li>
+                </ul>
 
+                <div class="d-flex align-items-center gap-3">
+                    <!-- Teacher Toggle Switch -->
+                    <div class="teacher-toggle-box d-flex align-items-center me-2">
+                        <span class="fw-bold me-2 small text-dark">Teacher Mode</span>
+                        <div class="form-check form-switch m-0">
+                            <input class="form-check-input" type="checkbox" id="teacherModeToggle" style="cursor: pointer;" checked>
+                        </div>
+                    </div>
 
-     <header class="site-header">
-    <nav class="site-nav">
-       <div class="nav-left">
-            <a href="{% url 'browse_classes' %}" class="site-nav__brand"><span style="color: #000000;">Smart</span><span style="color: #385E32;">Learn</span></a>
-       </div>
+                    {% if user.is_authenticated %}
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center text-decoration-none dropdown-toggle" id="profileDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="rounded-circle d-flex align-items-center justify-content-center text-white fw-bold shadow-sm"
+                                     style="width: 42px; height: 42px; background-color: #2b4c3f; border: 2px solid #4CAF7D;">
+                                    {{ request.user.username|slice:":2"|upper }}
+                                </div>
+                            </a>
 
-        <div class="site-nav__links">
-            <a href="/">Home</a>
-            <a href="/browse/">Explore</a>
-            <a href="{% url 'all_flashcards' %}">Flashcards</a>
-            <a href="{% url 'all_mcqs' %}">MCQs</a>
-            <a href="{% url 'my_results' %}">Results</a>
-            <a href="/dashboard/">Dashboard</a>
-            <a href="#">Profile</a>
-
-
-        </div>
-
-       <div class="nav-right">
-            <div class="teacher-toggle">
-                <span>Teacher</span>
-                <label class="toggle-switch">
-                    <input type="checkbox" class="toggle-switch__input" checked>
-                    <span class="toggle-switch__slider"></span>
-                </label>
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2 p-2" aria-labelledby="profileDropdown">
+                                <li class="px-3 py-2 border-bottom mb-1">
+                                    <span class="d-block small text-muted">Signed in as</span>
+                                    <strong class="text-dark">{{ request.user.username }}</strong>
+                                </li>
+                                <li><a class="dropdown-item py-2" href="#"><i class="fa-solid fa-user me-2 text-muted"></i> Profile</a></li>
+                                <li><hr class="dropdown-divider my-1"></li>
+                                <li><a class="dropdown-item py-2 text-danger" href="{% url 'logout' %}"><i class="fa-solid fa-right-from-bracket me-2"></i> Logout</a></li>
+                            </ul>
+                        </div>
+                    {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-matcha-outline">Sign In</a>
+                        <a href="{% url 'register' %}" class="btn btn-matcha-primary">Get Started</a>
+                    {% endif %}
+                </div>
             </div>
-            <div class="profile-placeholder"></div>
         </div>
-    </nav>
-</header>
+    </header>
 
+    <!-- MAIN PAGE CONTENT -->
     <main class="main-container">
         {% block content %}{% endblock %}
     </main>
-<script src="{% static 'js/script.js' %}"></script>
+
+    <!-- FOOTER -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="row g-4">
+
+                <div class="col-lg-4 col-md-6">
+                    <a href="#" class="footer-logo">
+                        <i class="fa-solid fa-graduation-cap"></i> Smart<span>Learn</span>
+                    </a>
+                    <p style="color: #b2c4bc; font-size: 15px; max-width: 340px; line-height: 1.6;" class="mb-4">
+                        An advanced all-in-one educational environment engineered to streamline personal class structures, self-assessment decks, structured exam validation fields, and direct image transaction auditing.
+                    </p>
+                    <div class="social-container">
+                        <a href="#" class="social-icon-btn"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon-btn"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5 class="footer-links-header">Product Hub</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="{% url 'home' %}">Home Base</a></li>
+                        <li><a href="{% url 'dashboard' %}">Dashboard Control</a></li>
+                        <li><a href="#">Class Modules</a></li>
+                        <li><a href="#">Flashcard Decks</a></li>
+                        <li><a href="#">MCQ Testing Banks</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-2 col-md-6 col-6">
+                    <h5 class="footer-links-header">Resources</h5>
+                    <ul class="footer-links-list">
+                        <li><a href="#">System Pricing</a></li>
+                        <li><a href="#">Documentation</a></li>
+                        <li><a href="#">User Guides</a></li>
+                        <li><a href="#">API Integrations</a></li>
+                        <li><a href="#">Server Status</a></li>
+                    </ul>
+                </div>
+
+                <div class="col-lg-4 col-md-6">
+                    <h5 class="footer-links-header">Central Support Contact</h5>
+                    <div class="contact-info-item">
+                        <i class="fa-solid fa-location-dot"></i>
+                        <span>Universities' Hlaing Campus, MICT Park Main Building, Hlaing Township, Yangon, Myanmar</span>
+                    </div>
+                    <div class="contact-info-item">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div>
+                            <span class="d-block">operations@smartlearn.edu.mm</span>
+                            <span class="d-block text-muted small" style="color: #8fa69c !important;">Response time: Within 24 Hours</span>
+                        </div>
+                    </div>
+                    <div class="contact-info-item">
+                        <i class="fa-solid fa-phone"></i>
+                        <span>+95 9 123 456 789, +95 1 987 654</span>
+                    </div>
+                    <div class="contact-info-item">
+                        <i class="fa-solid fa-clock"></i>
+                        <span>Mon - Fri / 9:00 AM - 5:00 PM (MMT)</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row footer-bottom-bar text-center text-md-start">
+                <div class="col-md-6 mb-3 mb-md-0">
+                    <p class="mb-0">© 2026 SmartLearn Systems Ltd. Handcrafted for academic project examination and hosting verification pipelines.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="#" class="text-decoration-none me-3" style="color: #8fa69c;">Privacy Framework</a>
+                    <a href="#" class="text-decoration-none me-3" style="color: #8fa69c;">Terms of Service</a>
+                    <a href="#" class="text-decoration-none" style="color: #8fa69c;">SLA Metrics</a>
+                </div>
+            </div>
+
+        </div>
+    </footer>
+
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

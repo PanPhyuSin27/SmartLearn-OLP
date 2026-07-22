@@ -43,9 +43,10 @@ def dashboard_view(request):
         owner=request.user,
         created_from_site=True
     )
-
+    all_system_classes = Classroom.objects.all().select_related('owner')
     return render(request, 'dashboard.html', {
         'my_classes': my_classes,
+        'all_system_classes': all_system_classes,
     })
 @login_required(login_url='login')
 def my_classes(request):

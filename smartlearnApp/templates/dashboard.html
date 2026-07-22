@@ -1,389 +1,143 @@
-{% load static %}
+{% extends 'base.html' %}
+{% block title %}Dashboard - SmartLearn{% endblock %}
 
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartLearn Dashboard</title>
-
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- FontAwesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
-
-    <!-- <link rel="stylesheet" href="./css/dashboard-style.css"> -->
-
-    <style>
-        /* TOP NAV */
-        /* =========================
-           DARK MATCHA NAVBAR
-        ========================= */
-
-        .navbar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 40px;
-            /* background: #111827; */
-            background: white;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid #1f2937;
-        }
-        /* LOGO */
-
-        .logo {
-            font-size: 20px;
-            font-weight: bold;
-            color: #4ade80;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        /* NAV LINKS */
-
-        .navbar nav {
-            display: flex;
-            gap: 20px;
-        }
-
-        .navbar nav a {
-            text-decoration: none;
-            /* color: #d1d5db; */
-            color: #0f172a;
-            font-size: 15px;
-            transition: 0.3s;
-        }
-
-        .navbar nav a i {
-            font-size: 14px;
-            margin-right: 5px;
-        }
-
-        .navbar nav a:hover {
-            color: #4ade80;
-        }
-        /* BUTTON */
-
-        .btn-primary {
-            background: #4ade80;
-            color: #0f172a;
-            border: none;
-            padding: 10px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .btn-primary:hover {
-            background: #22c55e;
-        }
-        /* PROFILE IMAGE */
-
-        .navbar img {
-            border: 2px solid #4ade80;
-            padding: 2px;
-        }
-
-        .top-nav {
-            background: white;
-            padding: 12px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .brand {
-            font-weight: 700;
-            font-size: 20px;
-            color: #4CAF7D;
-        }
-
-        .search-box {
-            width: 40%;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border-radius: 10px;
-            border: 1px solid #ddd;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 12px;
-            top: 12px;
-            color: #888;
-        }
-
-        .nav-icons i {
-            font-size: 20px;
-            margin: 0 12px;
-            color: #444;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .nav-icons i:hover {
-            color: #4CAF7D;
-        }
-
-        .profile {
-            width: 38px;
-            height: 38px;
-            border-radius: 50%;
-        }
-        /* HERO */
-
-        .hero {
-            background: linear-gradient(135deg, #4CAF7D, #a8e6cf);
-            color: white;
-            padding: 40px;
-            border-radius: 20px;
-            margin-top: 25px;
-        }
-        /* CARDS */
-
-        .course-card,
-        .small-card {
-            transition: 0.3s;
-            border-radius: 10px;
-        }
-
-        .course-card:hover,
-        .small-card:hover {
-            transform: translateY(-5px);
-            border-radius: 10px;
-        }
-
-        .section-title {
-            margin-top: 35px;
-            font-weight: 700;
-        }
-
-        .icon-lg {
-            font-size: 26px;
-            color: #4CAF7D;
-            margin-right: 10px;
-        }
-        /* CTA */
-
-        .cta {
-            margin-top: 50px;
-            text-align: center;
-            padding: 60px;
-            background: white;
-        }
-        /* FOOTER */
-
-        footer {
-            text-align: center;
-            padding: 20px;
-            color: #aaa;
-        }
-    </style>
-</head>
-
-<body style="background:#f5f7f6;">
-
-    <!-- TOP NAV -->
-    <!-- NAVBAR -->
-    <div class="navbar">
-
-        <!-- LEFT: LOGO -->
-        <div class="logo">
-            <i class="fa-solid fa-graduation-cap"></i> SmartLearn
-        </div>
-
-        <!-- MIDDLE NAV LINKS -->
-        <nav>
-            <!-- <a href="#"><i class="fa-solid fa-house me-1"></i> Home</a>
-            <a href="#"><i class="fa-solid fa-book me-1"></i> Classes</a>
-            <a href="#"><i class="fa-solid fa-layer-group me-1"></i> Flashcards</a>
-            <a href="#"><i class="fa-solid fa-circle-question me-1"></i> MCQ</a>
-            <a href="#"><i class="fa-solid fa-credit-card me-1"></i> Payments</a> -->
-
-<!--            <a href="home.html">Home</a>-->
-            <a href="{% url 'home' %}">Home</a>
-            <a href="{% url 'my_classes' %}">Classes</a>
-            <a href="#">Flashcards</a>
-            <a href="#">MCQ</a>
-            <a href="payment.html">Payments</a>
-        </nav>
-
-        <!-- RIGHT SIDE -->
-        <div style="display:flex; align-items:center; gap:15px;">
-
-            <!-- <button class="btn-primary">
-                Upgrade
-            </button> -->
-
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" style="width:40px; height:40px; border-radius:50%;">
-
-        </div>
-
-    </div>
-
-    <div class="container">
-
-        <!-- HERO -->
-        <div class="hero mt-4">
-
+{% block content %}
+<div class="main-container">
+    <!-- CONTENT HEADER WITH TITLE AND TEACHER MODE TOGGLE -->
+    <div class="styled-card content-header-box">
+        <div class="page-title-row">
+            <div class="hero mt-4">
             <h2>
                 Hi, {{ request.user.username }} 👋
             </h2>
             <p>Continue your learning journey today.</p>
             <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
         </div>
-
-        <!-- CLASSES -->
-        <h4 class="section-title">My Classes</h4>
-          <p>Current user: {{ request.user.username }}</p>
-        <div class="row g-4 mt-2">
-
-        {% for classroom in my_classes %}
-
-        <div class="col-md-3">
-           <div class="course-card card p-3 text-center">
-
-                <h5>{{ classroom.title }}</h5>
-
-                <p>{{ classroom.subject }}</p>
-
-                <p>
-                    {{ classroom.class_type }}
-                </p>
-
-           </div>
-       </div>
-
-        {% empty %}
-
-        <p>No classes created yet.</p>
-
-         {% endfor %}
-        </div>
-
-
-
-
-
-
-
-
-
-    <div class="row g-4 mt-2">
-
-    <div class="col-md-4">
-        <div class="course-card card p-3 text-center">
-            <i class="fa-solid fa-database icon-lg"></i>
-            <h5>Database Design</h5>
-            <p>15 Lessons</p>
+           
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="course-card card p-3 text-center">
-            <i class="fa-solid fa-paint-brush icon-lg"></i>
-            <h5>UI/UX Design</h5>
-            <p>10 Lessons</p>
+    <!-- ======================================================== -->
+    <!-- SECTION 1: TEACHER MODE ON (User's Created Classes)      -->
+    <!-- ======================================================== -->
+    <div id="teacherModeSection" style="display: none;">
+        <div class="styled-card content-header-box" style="margin-bottom: 20px;">
+            <div class="page-title-row">
+                <h3 class="page-heading-large" style="font-size: 26px; margin-bottom: 0;">My Created Classes</h3>
+                <a href="{% url 'create_class' %}" class="btn-primary">+ Create New Class</a>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            {% for classroom in my_classes %}
+                <article class="styled-card class-card">
+                    <div class="class-card-header">
+                        <h3 class="class-card-title">{{ classroom.title }}</h3>
+                        <span class="status-badge {% if classroom.class_type == 'public' %}badge-public{% else %}badge-private{% endif %}">
+                            {{ classroom.class_type|title }}
+                        </span>
+                    </div>
+
+                    <p class="class-card-desc">{{ classroom.description|truncatewords:20 }}</p>
+
+                    <div class="class-card-footer">
+                        <div class="teacher-info">
+                            <span class="footer-text-small">Subject</span>
+                            <span class="footer-text-bold">{{ classroom.subject|default:"General" }}</span>
+                        </div>
+
+                        <div class="card-actions">
+                            <a href="{% url 'classroom_detail' classroom.class_id %}" class="btn-primary card-action-btn-small">Open</a>
+                            <a href="{% url 'manage_enrollments' classroom.class_id %}" class="btn-secondary card-action-btn-small">Manage</a>
+                            <a href="{% url 'delete_class' classroom.class_id %}" class="delete-link" onclick="return confirm('Are you sure you want to delete this class?');">Delete</a>
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty-text-centered">You haven't created any classes yet.</p>
+            {% endfor %}
         </div>
     </div>
 
-    <div class="col-md-4">
-        <div class="course-card card p-3 text-center">
-            <i class="fa-solid fa-shield-halved icon-lg"></i>
-            <h5>Cyber Security</h5>
-            <p>18 Lessons</p>
+    <!-- ======================================================== -->
+    <!-- SECTION 2: TEACHER MODE OFF (All System Classes)         -->
+    <!-- ======================================================== -->
+    <div id="allClassesSection">
+        <div class="styled-card content-header-box" style="margin-bottom: 20px;">
+            <div class="page-title-row">
+                <h3 class="page-heading-large" style="font-size: 26px; margin-bottom: 0;">All System Classes</h3>
+            </div>
+        </div>
+
+        <div class="cards-grid">
+            {% for classroom in all_system_classes %}
+                <article class="styled-card class-card">
+                    <div class="class-card-header">
+                        <h3 class="class-card-title">{{ classroom.title }}</h3>
+                        <span class="status-badge {% if classroom.class_type == 'public' %}badge-public{% else %}badge-private{% endif %}">
+                            {{ classroom.class_type|title }}
+                        </span>
+                    </div>
+
+                    <p class="class-card-desc">{{ classroom.description|truncatewords:20 }}</p>
+
+                    <div class="class-card-footer">
+                        <div class="teacher-info">
+                            <span class="footer-text-small">Teacher</span>
+                            <span class="footer-text-bold">{{ classroom.owner.username|default:"Unknown" }}</span>
+                        </div>
+
+                        <div class="card-actions">
+                            {% if classroom.owner == request.user %}
+                                <a href="{% url 'classroom_detail' classroom.class_id %}" class="btn-primary card-action-btn-small">Open</a>
+                                <a href="{% url 'manage_enrollments' classroom.class_id %}" class="btn-secondary card-action-btn-small">Manage</a>
+                            {% elif classroom.class_id in joined_class_ids %}
+                                <a href="{% url 'classroom_detail' classroom.class_id %}" class="btn-primary card-action-btn-small">Open Class</a>
+                            {% elif classroom.class_id in pending_class_ids %}
+                                <span class="status-text-pending"><i class="fa-solid fa-clock"></i> Pending Review</span>
+                            {% elif classroom.class_type == 'public' %}
+                                <a href="{% url 'classroom_detail' classroom.class_id %}" class="btn-primary card-action-btn-small">Join Class</a>
+                            {% else %}
+                                <a href="{% url 'request_join_class' classroom.class_id %}" class="btn-primary card-action-btn-small">Request Entry (${{ classroom.price }})</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
+            {% empty %}
+                <p class="empty-text-centered">No classes available in the system yet.</p>
+            {% endfor %}
         </div>
     </div>
-
 </div>
 
+<!-- TOGGLE SCRIPT FOR TEACHER MODE (WITH LOCALSTORAGE SYNC) -->
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const toggle = document.getElementById("teacherModeToggle");
+        const teacherSection = document.getElementById("teacherModeSection");
+        const allClassesSection = document.getElementById("allClassesSection");
 
+        function updateView(isTeacherMode) {
+            if (isTeacherMode) {
+                teacherSection.style.display = "block";
+                allClassesSection.style.display = "none";
+            } else {
+                teacherSection.style.display = "none";
+                allClassesSection.style.display = "block";
+            }
+        }
 
+        const savedMode = localStorage.getItem("teacherMode") === "true";
+        if (toggle) {
+            toggle.checked = savedMode;
+            updateView(savedMode);
 
-
-
-
-
-        <!-- FLASHCARDS -->
-        <h4 class="section-title">Flashcards</h4>
-
-        <div class="row g-3 mt-2">
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-solid fa-code icon-lg"></i> HTML Basics
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-brands fa-python icon-lg"></i> Python Functions
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-solid fa-key icon-lg"></i> Database Keys
-                </div>
-            </div>
-
-        </div>
-
-        <!-- QUIZ -->
-        <h4 class="section-title">MCQ Quizzes</h4>
-
-        <div class="row g-3 mt-2">
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-solid fa-globe icon-lg"></i> Web Development Quiz
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-solid fa-shield icon-lg"></i> Cyber Security Quiz
-                </div>
-            </div>
-
-            <div class="col-md-4">
-                <div class="small-card card p-4 text-center">
-                    <i class="fa-solid fa-network-wired icon-lg"></i> Networking Quiz
-                </div>
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- CTA -->
-    <section class="cta">
-        <h2>Start Your Learning Journey Today</h2><br>
-        <p>Everything you need in one place.</p><br>
-        <button class="btn-primary" onclick="goToHome()">Back to Home</button>
-    </section>
-
-    <!-- FOOTER -->
-    <footer>
-        <p>© 2026 SmartLearn. All rights reserved.</p>
-    </footer>
-
-<!--    <script src="./js/script.js"></script>-->
-<script src="{% static 'js/script.js' %}"></script>
-</body>
-
-</html>
+            toggle.addEventListener("change", (e) => {
+                const isChecked = e.target.checked;
+                localStorage.setItem("teacherMode", isChecked);
+                updateView(isChecked);
+            });
+        }
+    });
+</script>
+{% endblock %}

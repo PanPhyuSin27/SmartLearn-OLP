@@ -3,8 +3,9 @@
 
 {% block content %}
 <div class="styled-card content-header-box">
-    <div class="page-title-row">
-        <h2 class="page-heading-large">Explore Classes</h2>
+    <div class="page-title-row d-flex justify-content-between align-items-center">
+        <h2 class="page-heading-large mb-0">Explore Classes</h2>
+
         <a href="{% url 'create_class' %}" class="btn-primary">+ Create New Class</a>
     </div>
 </div>
@@ -40,7 +41,7 @@
 
 <div class="cards-grid">
     {% for classroom in classrooms %}
-        <article class="styled-card class-card">
+        <article class="styled-card class-card class-item-card" data-owner="{{ classroom.owner.username }}">
             <div class="class-card-header">
                 <h3 class="class-card-title">{{ classroom.title }}</h3>
                 <span class="status-badge {% if classroom.class_type == 'public' %}badge-public{% else %}badge-private{% endif %}">
@@ -76,6 +77,8 @@
     {% empty %}
         <p class="empty-text-centered">No classrooms match your filter options.</p>
     {% endfor %}
+
+    <p id="noTeacherClassesMsg" class="empty-text-centered" style="display: none;">You haven't created any classrooms yet.</p>
 </div>
 
 <script>
@@ -89,12 +92,60 @@
     }
 
     window.addEventListener('DOMContentLoaded', () => {
+        // Handle search input focus
         const input = document.getElementById('searchInput');
-        if (input.value) {
+        if (input && input.value) {
             input.focus();
             const val = input.value;
             input.value = '';
             input.value = val;
+        }
+
+        // --- TEACHER MODE TOGGLE LOGIC ---
+        const toggle = document.getElementById('teacherModeToggle');
+        const classCards = document.querySelectorAll('.class-item-card');
+        const noTeacherClassesMsg = document.getElementById('noTeacherClassesMsg');
+        const currentUser = "{{ current_user_name }}";
+
+        function applyTeacherMode(isTeacherMode) {
+            let visibleCount = 0;
+
+            classCards.forEach(card => {
+                const owner = card.getAttribute('data-owner');
+                if (isTeacherMode) {
+                    // Show only classes owned by current user
+                    if (owner === currentUser) {
+                        card.style.display = '';
+                        visibleCount++;
+                    } else {
+                        card.style.display = 'none';
+                    }
+                } else {
+                    // Show all classes
+                    card.style.display = '';
+                    visibleCount++;
+                }
+            });
+
+            // Show empty state message if Teacher Mode is on and user owns no classes
+            if (isTeacherMode && visibleCount === 0) {
+                noTeacherClassesMsg.style.display = 'block';
+            } else {
+                noTeacherClassesMsg.style.display = 'none';
+            }
+        }
+
+        // Retrieve synced Teacher Mode state from localStorage
+        const savedMode = localStorage.getItem('teacherMode') === 'true';
+        if (toggle) {
+            toggle.checked = savedMode;
+            applyTeacherMode(savedMode);
+
+            toggle.addEventListener('change', (e) => {
+                const isChecked = e.target.checked;
+                localStorage.setItem('teacherMode', isChecked);
+                applyTeacherMode(isChecked);
+            });
         }
     });
 </script>
