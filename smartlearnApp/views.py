@@ -443,7 +443,7 @@ def flashcards_view(request, class_id):
 
 
 def all_flashcards_view(request):
-    current_user = get_mock_user(request)
+    current_user =request.user 
     accessible_classrooms = get_accessible_classrooms(current_user)
 
     flashcard_groups = []
@@ -500,7 +500,7 @@ def all_flashcards_view(request):
 
 
 def all_mcqs_view(request):
-    current_user = get_mock_user(request)
+    current_user = request.user
     accessible_classrooms = get_accessible_classrooms(current_user)
 
     mcq_groups = []
