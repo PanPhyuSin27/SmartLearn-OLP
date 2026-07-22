@@ -111,7 +111,7 @@
         /* HERO SUITE */
         .hero-section {
             padding: 110px 0 90px 0;
-            background: linear-gradient(180deg, #f1f0d9 0%, #f8faf9 100%);
+            background: #f8faf9;
             position: relative;
         }
 
@@ -436,25 +436,25 @@
                             <span class="badge bg-success" style="background-color: #4CAF7D !important;">Live Tracking</span>
                         </div>
                         <div class="row g-3">
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3">
-                                    <h3 class="fw-bold text-success mb-1">12</h3>
-                                    <small class="text-muted">Classes</small>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3">
-                                    <h3 class="fw-bold text-info mb-1">320</h3>
-                                    <small class="text-muted">Cards</small>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="p-3 bg-light rounded-3">
-                                    <h3 class="fw-bold text-warning mb-1">45</h3>
-                                    <small class="text-muted">MCQs</small>
-                                </div>
-                            </div>
-                        </div>
+    <div class="col-4">
+        <div class="p-3 bg-light rounded-3">
+            <h3 class="fw-bold text-success mb-1">{{ total_classes|default:0 }}</h3>
+            <small class="text-muted">Classes</small>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="p-3 bg-light rounded-3">
+            <h3 class="fw-bold text-info mb-1">{{ total_flashcards|default:0 }}</h3>
+            <small class="text-muted">Cards</small>
+        </div>
+    </div>
+    <div class="col-4">
+        <div class="p-3 bg-light rounded-3">
+            <h3 class="fw-bold text-warning mb-1">{{ total_mcqs|default:0 }}</h3>
+            <small class="text-muted">MCQs</small>
+        </div>
+    </div>
+</div>
                         <hr class="my-4 text-muted opacity-25">
                         <div class="text-start d-flex align-items-center gap-3">
                             <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&q=80" alt="Avatar" class="rounded-circle" width="45" height="45">

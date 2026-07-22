@@ -819,3 +819,20 @@ def quiz_result(request, attempt_id):
         'reviewed_questions': reviewed_questions,
         'percentage': percentage,
     })
+
+# views.py
+from django.shortcuts import render
+from .models import Classroom, Flashcard, MCQQuestion  # Import your actual model names
+
+def home_view(request):
+    # Query database counts
+    total_classes = Classroom.objects.count()
+    total_flashcards = Flashcard.objects.count()
+    total_mcqs = MCQQuestion.objects.count()
+
+    context = {
+        'total_classes': total_classes,
+        'total_flashcards': total_flashcards,
+        'total_mcqs': total_mcqs,
+    }
+    return render(request, 'home.html', context)
