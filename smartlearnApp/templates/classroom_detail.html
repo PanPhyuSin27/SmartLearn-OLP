@@ -574,7 +574,19 @@ Smart<span>Learn</span>
  Quizzes
 </a>
 
+{% if classroom.owner == request.user %}
+    <div style="margin: 15px 0 10px 0; border-top: 1px solid var(--border);"></div>
+    
+    <a href="{% url 'teacher_student_results' classroom.class_id %}" class="menu-item">
+      <i class="fa-solid fa-chart-line"></i>
+      Student Results
+    </a>
 
+    <a href="{% url 'manage_enrollments' classroom.class_id %}" class="menu-item">
+      <i class="fa-solid fa-users"></i>
+      Student List
+    </a>
+{% endif %}
 </div>
 
 

@@ -822,7 +822,7 @@ def quiz_result(request, attempt_id):
 
 # views.py
 from django.shortcuts import render
-from .models import Classroom, Flashcard, MCQQuestion  # Import your actual model names
+from .models import Classroom, Flashcard, MCQQuestion  
 
 def home_view(request):
     # Query database counts
@@ -836,3 +836,20 @@ def home_view(request):
         'total_mcqs': total_mcqs,
     }
     return render(request, 'home.html', context)
+
+@login_required(login_url='login')
+def teacher_student_results(request, class_id):
+    classroom = get_object_or_404(Classroom, class_id=class_id)
+    
+    # Restrict access to classroom owner/teacher
+    if classroom.owner != request.user:
+        messages.error(request, "Only the class instructor can access student quiz scores.")
+        return redirect('classroom_detail', class_id=classroom.class_id)
+
+    # Fetch all student quiz attempts for this classroom
+    attempts = QuizAttempt.objects.filter(classroom=classroom).select_related('student').order_by('-taken_at')
+
+    return render(request, 'teacher_student_results.html', {
+        'classroom': classroom,
+        'attempts': attempts
+    })

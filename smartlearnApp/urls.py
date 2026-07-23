@@ -28,7 +28,7 @@ urlpatterns = [
     path('my-results/', views.my_results_view, name='my_results'),
     path('flashcards/', views.all_flashcards_view, name='all_flashcards'),
     path('mcqs/', views.all_mcqs_view, name='all_mcqs'),
-
+    path('classroom/<int:class_id>/student-results/', views.teacher_student_results, name='teacher_student_results'),
 ]
 
 
